@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gestor de Actividades - Iglesia</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+      padding: 20px;
+    }
+    .hidden {
+      display: none;
+    }
+    .section {
+      background: white;
+      border: 1px solid #ccc;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+    }
+    h2, h3 {
+      margin-top: 0;
+    }
+    input, textarea, button {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      text-align: center;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 5px 0;
+      cursor: pointer;
+      text-align: left; /* Asegura la alineación a la izquierda del label */
+    }
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+    }
+    #vistaPrincipal {
+      text-align: center;
+    }
+    #vistaPrincipal button{
+      width: 200px;
+      margin: 20px auto;
+    }
+    .confirmado {
+      color: green;
+      font-weight: bold;
+      margin-left: auto;
+      margin-right: 0;
+    }
+     #panelConfirmacion {
+      margin-top: 20px;
+    }
+    .eliminar-actividad {
+        background-color: #f44336;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.9em;
+        margin-left: 10px;
+    }
+    .eliminar-actividad:hover {
+        background-color: #d32f2f;
+    }
+    .actividad-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .actividad-nombre {
+      font-size: 1.2em;
+      font-weight: bold;
+      margin-right: 10px;
+    }
+    .actividad-fecha {
+      font-style: italic;
+      color: #666;
+    }
+    .editar-actividad {
+        background-color: #008CBA;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.9em;
+        margin-left: 10px;
+    }
+    .editar-actividad:hover {
+        background-color: #007ba7;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 10% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 90%;
+      max-width: 500px;
+      border-radius: 8px;
+      position: relative;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 10px;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 1.5em;
+    }
+
+    .close-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      color: #aaa;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close-button:hover,
+    .close-button:focus {
+      color: #000;
+      text-decoration: none;
+    }
+
+    .modal-body {
+      margin-bottom: 15px;
+    }
+
+    .modal-body label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 5px 0;
+      cursor: pointer;
+      text-align: left; /* Asegura la alineación a la izquierda del label */
+    }
+
+    .modal-body input,
+    .modal-body textarea {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+
+    .modal-body textarea {
+      resize: vertical;
+    }
+
+    .modal-footer {
+      text-align: right;
+    }
+
+    .modal-footer button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1em;
+    }
+
+    .modal-footer button:hover {
+      opacity: 0.8;
+    }
+
+    .modal-footer .cancelar {
+      background-color: #ccc;
+      color: #333;
+      margin-right: 10px;
+    }
+
+    .modal-footer .guardar {
+      background-color: #4caf50;
+      color: white;
+    }
+
+    #logo {
+      width: 180px;
+      margin-bottom: 15px;
+      filter: drop-shadow(5px 5px 8px rgba(0, 0, 0, 0.5));
+      transition: transform 0.2s ease-in-out;
+    }
+
+    #logo:hover {
+      transform: scale(1.05);
+    }
+
+    h2 {
+      font-size: 2em;
+      color: #000;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+      margin-bottom: 20px;
+    }
+    ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    li {
+        margin-bottom: 5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    li span {
+        margin-right: auto;
+    }
+    li button{
+      flex: none;
+    }
+    .confirmado {
+        margin-left: auto;
+        margin-right: 0;
+    }
+
+  </style>
+</head>
+<body onload="mostrarActividades()">
+  <div id="vistaPrincipal">
+    <img id="logo" src="https://assets.onecompiler.app/43hc5xg2u/43hu7gqp8/LOGOMMI.png" alt="Logo de la Iglesia">
+    <h2>Actividades Programadas</h2>
+    <div id="panelConfirmacion"></div>
+    <button onclick="mostrarLoginAdmin()">Admin</button>
+  </div>
+
+  <div id="loginAdmin" class="hidden">
+    <h2>Acceso Admin</h2>
+    <input type="password" id="claveAdmin" placeholder="Ingresa clave">
+    <button onclick="accederAdmin()">Entrar</button>
+    <button onclick="volverPrincipal()">Volver</button>
+  </div>
+
+  <div id="vistaAdmin" class="hidden">
+    <h2>Panel Admin</h2>
+
+    <div class="section">
+      <h3>Registrar Miembros</h3>
+      <input type="text" id="nuevoMiembro" placeholder="Nombre del nuevo miembro">
+      <button onclick="registrarMiembro()">Registrar</button>
+      <div id="listaMiembros"></div>
+    </div>
+
+    <div class="section">
+      <h3>Seleccionar Miembros Activos</h3>
+      <label><input type="checkbox" id="seleccionarTodosActivos"> Seleccionar Todos</label>
+      <div id="checkboxActivos"></div>
+      <button onclick="guardarActivos()">Guardar Activos</button>
+    </div>
+
+    <div class="section">
+      <h3>Crear Actividad</h3>
+      <input type="text" id="actividad" placeholder="Nombre de la actividad">
+      <input type="date" id="fecha">
+      <input type="time" id="hora">
+      <textarea id="descripcion" placeholder="Descripción de la actividad"></textarea>
+      <h4>Selecciona miembros activos</h4>
+       <label><input type="checkbox" id="seleccionarTodosMiembros"> Seleccionar Todos</label>
+      <div id="checkboxMiembros"></div>
+      <button onclick="crearActividad()">Crear Actividad</button>
+    </div>
+     <div class="section" id="listaActividadesAdmin">
+          <h3>Actividades Creadas</h3>
+     </div>
+
+    <button onclick="volverPrincipal()">Cerrar Sesión</button>
+  </div>
+
+  <div id="modalEditarActividad" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Editar Actividad</h2>
+        <span class="close-button" id="cerrarModal">&times;</span>
+      </div>
+      <div class="modal-body">
+        <label for="editNombre">Nombre de la actividad:</label>
+        <input type="text" id="editNombre">
+        <label for="editFecha">Fecha:</label>
+        <input type="date" id="editFecha">
+        <label for="editHora">Hora:</label>
+        <input type="time" id="editHora">
+        <label for="editDescripcion">Descripción:</label>
+        <textarea id="editDescripcion"></textarea>
+        <h4 style="text-align: left;">Selecciona miembros activos</h4>
+        <label style="text-align: left;"><input type="checkbox" id="seleccionarTodosEditar"> Seleccionar Todos</label>
+        <div id="checkboxEditarMiembros" style="text-align: left;"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="cancelar" id="cancelarEditar">Cancelar</button>
+        <button type="button" class="guardar" id="guardarCambios">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let miembros = JSON.parse(localStorage.getItem("miembros")) || [];
+    let miembrosActivos = JSON.parse(localStorage.getItem("miembrosActivos")) || [];
+    let actividades = JSON.parse(localStorage.getItem("actividades")) || [];
+
+    let actividadIndexSeleccionada = null;
+    const modalEditarActividad = document.getElementById("modalEditarActividad");
+    const cerrarModalBtn = document.getElementById("cerrarModal");
+    const cancelarEditarBtn = document.getElementById("cancelarEditar");
+    const guardarCambiosBtn = document.getElementById("guardarCambios");
+    const editNombreInput = document.getElementById("editNombre");
+    const editFechaInput = document.getElementById("editFecha");
+    const editHoraInput = document.getElementById("editHora");
+    const editDescripcionInput = document.getElementById("editDescripcion");
+    const checkboxEditarMiembros = document.getElementById("checkboxEditarMiembros");
+    const seleccionarTodosEditarCheckbox = document.getElementById("seleccionarTodosEditar");
+
+
+    cerrarModalBtn.addEventListener("click", cerrarModal);
+    cancelarEditarBtn.addEventListener("click", cerrarModal);
+    guardarCambiosBtn.addEventListener("click", guardarCambios);
+    seleccionarTodosEditarCheckbox.addEventListener('change', function() {
+      const checkboxes = document.querySelectorAll('#checkboxEditarMiembros input[type="checkbox"]');
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = this.checked;
+      });
+    });
+
+    function mostrarLoginAdmin() {
+      document.getElementById("vistaPrincipal").classList.add("hidden");
+      document.getElementById("loginAdmin").classList.remove("hidden");
+    }
+
+    function accederAdmin() {
+      const clave = document.getElementById("claveAdmin").value;
+      if (clave === "8888") {
+        document.getElementById("loginAdmin").classList.add("hidden");
+        document.getElementById("vistaAdmin").classList.remove("hidden");
+        actualizarListaMiembros();
+        mostrarCheckboxActivos();
+        mostrarCheckboxMiembros();
+        mostrarActividadesAdmin();
+      } else {
+        alert("Clave incorrecta");
+      }
+    }
+
+    function volverPrincipal() {
+      document.getElementById("vistaPrincipal").classList.remove("hidden");
+      document.getElementById("loginAdmin").classList.add("hidden");
+      document.getElementById("vistaAdmin").classList.add("hidden");
+      document.getElementById("claveAdmin").value = "";
+      mostrarActividades();
+    }
+
+    function registrarMiembro() {
+      const nuevo = document.getElementById("nuevoMiembro").value.trim();
+      if (nuevo && !miembros.includes(nuevo)) {
+        miembros.push(nuevo);
+        localStorage.setItem("miembros", JSON.stringify(miembros));
+        document.getElementById("nuevoMiembro").value = "";
+        actualizarListaMiembros();
+        mostrarCheckboxActivos();
+      } else if (!nuevo) {
+        alert("Por favor, ingresa un nombre para el nuevo miembro.");
+      } else {
+        alert("Este miembro ya está registrado.");
+      }
+    }
+
+    function actualizarListaMiembros() {
+      const cont = document.getElementById("listaMiembros");
+      cont.innerHTML = miembros.length === 0
+        ? "<p>No hay miembros registrados.</p>"
+        : miembros.map(m => `<p>${m}</p>`).join("");
+    }
+
+    function mostrarCheckboxActivos() {
+      const cont = document.getElementById("checkboxActivos");
+      cont.innerHTML = miembros.length === 0
+        ? "<p>No hay miembros registrados para seleccionar.</p>"
+        : miembros.map(m => `
+          <label>
+            <input type="checkbox" value="${m}" ${miembrosActivos.includes(m) ? 'checked' : ''}> ${m}
+          </label>
+        `).join("");
+        document.getElementById('seleccionarTodosActivos').checked = false;
+    }
+
+    function guardarActivos() {
+      const checkboxes = document.querySelectorAll("#checkboxActivos input:checked");
+      miembrosActivos = Array.from(checkboxes).map(cb => cb.value);
+      localStorage.setItem("miembrosActivos", JSON.stringify(miembrosActivos));
+      mostrarCheckboxMiembros();
+      alert("Miembros activos actualizados");
+    }
+
+    function mostrarCheckboxMiembros() {
+      const contenedor = document.getElementById("checkboxMiembros");
+      contenedor.innerHTML = miembrosActivos.length === 0
+        ? "<p>No hay miembros activos seleccionados.</p>"
+        : miembrosActivos.map(m => `
+          <label style="text-align: left;">
+            <input type="checkbox" value="${m}"> ${m}
+            </label>
+        `).join("");
+        document.getElementById('seleccionarTodosMiembros').checked = false;
+    }
+
+    function crearActividad() {
+      const nombre = document.getElementById("actividad").value.trim();
+      const fecha = document.getElementById("fecha").value;
+      const hora = document.getElementById("hora").value;
+      const descripcion = document.getElementById("descripcion").value.trim();
+      const seleccionados = Array.from(document.querySelectorAll("#checkboxMiembros input:checked"))
+        .map(cb => ({ nombre: cb.value, confirmado: false }));
+
+      if (nombre && fecha && hora && seleccionados.length > 0) {
+        actividades.push({ nombre, fecha, hora, descripcion, participantes: seleccionados });
+        localStorage.setItem("actividades", JSON.stringify(actividades));
+        alert("Actividad creada");
+        document.getElementById("actividad").value = "";
+        document.getElementById("fecha").value = "";
+        document.getElementById("hora").value = "";
+        document.getElementById("descripcion").value = "";
+        mostrarActividades();
+         mostrarActividadesAdmin();
+      } else {
+        alert("Completa todos los campos y selecciona al menos un miembro");
+      }
+    }
+
+    function mostrarActividades() {
+      const panel = document.getElementById("panelConfirmacion");
+      if (actividades.length === 0) {
+        panel.innerHTML = "<p>No hay actividades creadas aún.</p>";
+        return;
+      }
+
+      panel.innerHTML = actividades.map((act, actIndex) => `
+        <div class="section">
+          <div class="actividad-info">
+            <h3 class="actividad-nombre">${act.nombre}</h3>
+            <p class="actividad-fecha">${act.fecha} ${act.hora ? '- ' + act.hora : ''}</p>
+          </div>
+          <p>${act.descripcion}</p>
+          <h4>Participantes:</h4>
+          <ul>
+            ${act.participantes.map((p, pIndex) => `
+              <li>
+                <span>${p.nombre}</span>
+                ${p.confirmado ? '<span class="confirmado">[Confirmado]</span>' : `
+                  <button onclick="confirmar(${actIndex}, ${pIndex})">Confirmar</button>
+                `}
+              </li>
+            `).join("")}
+          </ul>
+        </div>
+      `).join("");
+    }
+
+    function confirmar(actIndex, pIndex) {
+      actividades[actIndex].participantes[pIndex].confirmado = true;
+      localStorage.setItem("actividades", JSON.stringify(actividades));
+      mostrarActividades();
+    }
+
+    function mostrarActividadesAdmin() {
+        const listaActividades = document.getElementById("listaActividadesAdmin");
+        listaActividades.innerHTML = actividades.length === 0
+            ? "<p>No hay actividades creadas.</p>"
+            : actividades.map((act, index) => `
+                <div class="section">
+                  <div class="actividad-info">
+                    <h3 class="actividad-nombre">${act.nombre}</h3>
+                    <p class="actividad-fecha">${act.fecha} ${act.hora ? '- ' + act.hora : ''}</p>
+                  </div>
+                    <p>${act.descripcion}</p>
+                    <button class="editar-actividad" onclick="editarActividad(${index})">Editar</button>
+                    <button class="eliminar-actividad" onclick="eliminarActividad(${index})">Eliminar</button>
+                </div>
+            `).join("");
+    }
+
+    function eliminarActividad(index) {
+        actividades.splice(index, 1);
+        localStorage.setItem("actividades", JSON.stringify(actividades));
+        mostrarActividadesAdmin();
+        mostrarActividades();
+    }
+
+    function editarActividad(index) {
+      actividadIndexSeleccionada = index;
+      const actividad = actividades[index];
+      editNombreInput.value = actividad.nombre;
+      editFechaInput.value = actividad.fecha;
+      editHoraInput.value = actividad.hora;
+      editDescripcionInput.value = actividad.descripcion;
+
+      checkboxEditarMiembros.innerHTML = miembrosActivos.map(m => {
+        const participante = actividad.participantes.find(p => p.nombre === m);
+        const checked = participante ? true : false;
+        return `<label style="text-align: left;"><input type="checkbox" value="${m}" ${checked ? 'checked' : ''}> ${m}</label>`;
+      }).join("");
+
+      modalEditarActividad.style.display = "block";
+    }
+
+    function guardarCambios() {
+      if (actividadIndexSeleccionada !== null) {
+        const nombre = editNombreInput.value.trim();
+        const fecha = editFechaInput.value;
+        const hora = editHoraInput.value;
+        const descripcion = editDescripcionInput.value.trim();
+        const seleccionados = Array.from(document.querySelectorAll("#checkboxEditarMiembros input:checked"))
+          .map(cb => ({ nombre: cb.value, confirmado: false }));
+
+        if (nombre && fecha && hora && descripcion && seleccionados.length > 0) {
+          actividades[actividadIndexSeleccionada].nombre = nombre;
+          actividades[actividadIndexSeleccionada].fecha = fecha;
+          actividades[actividadIndexSeleccionada].hora = hora;
+          actividades[actividadIndexSeleccionada].descripcion = descripcion;
+          actividades[actividadIndexSeleccionada].participantes = seleccionados;
+          localStorage.setItem("actividades", JSON.stringify(actividades));
+          mostrarActividades();
+          mostrarActividadesAdmin();
+          cerrarModal();
+          alert("Actividad modificada");
+        } else {
+          alert("Completa todos los campos y selecciona al menos un miembro");
+        }
+      }
+    }
+
+    function cerrarModal() {
+      modalEditarActividad.style.display = "none";
+      actividadIndexSeleccionada = null;
+    }
+
+    document.getElementById('seleccionarTodosActivos').addEventListener('change', function() {
+      const checkboxes = document.querySelectorAll('#checkboxActivos input[type="checkbox"]');
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = this.checked;
+      });
+    });
+
+     document.getElementById('seleccionarTodosMiembros').addEventListener('change', function() {
+      const checkboxes = document.querySelectorAll('#checkboxMiembros input[type="checkbox"]');
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = this.checked;
+      });
+    });
+
+  </script>
+</body>
+</html>
